@@ -1,4 +1,4 @@
-// Copyright 2013-2016, Google, Inc.
+// Copyright 2013 Google LLC
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,6 +12,7 @@
 // limitations under the License.
 
 import * as assert from 'assert';
+import {describe, it} from 'mocha';
 import {APIEndpoint} from 'googleapis-common';
 import * as nock from 'nock';
 import {GoogleApis} from '../src';
@@ -25,15 +26,15 @@ function createNock(qs?: string) {
 }
 
 describe('Clients', () => {
-  let localPlus: APIEndpoint, remotePlus: APIEndpoint;
+  let localBlogger: APIEndpoint, remoteBlogger: APIEndpoint;
   let localOauth2: APIEndpoint, remoteOauth2: APIEndpoint;
 
   before(async () => {
     nock.cleanAll();
     const google = new GoogleApis();
     nock.enableNetConnect();
-    [remotePlus, remoteOauth2] = await Promise.all([
-      Utils.loadApi(google, 'plus', 'v1'),
+    [remoteBlogger, remoteOauth2] = await Promise.all([
+      Utils.loadApi(google, 'blogger', 'v3'),
       Utils.loadApi(google, 'oauth2', 'v2'),
     ]);
     nock.disableNetConnect();
@@ -43,7 +44,7 @@ describe('Clients', () => {
     nock.cleanAll();
     nock.disableNetConnect();
     const google = new GoogleApis();
-    localPlus = google.plus('v1');
+    localBlogger = google.blogger('v3');
     localOauth2 = google.oauth2('v2');
   });
 
@@ -54,14 +55,10 @@ describe('Clients', () => {
   });
 
   it('should create request helpers according to resource on discovery API response', () => {
-    let plus = localPlus;
-    assert.strictEqual(typeof plus.people.get, 'function');
-    assert.strictEqual(typeof plus.activities.search, 'function');
-    assert.strictEqual(typeof plus.comments.list, 'function');
-    plus = remotePlus;
-    assert.strictEqual(typeof plus.people.get, 'function');
-    assert.strictEqual(typeof plus.activities.search, 'function');
-    assert.strictEqual(typeof plus.comments.list, 'function');
+    let blogger = localBlogger;
+    assert.strictEqual(typeof blogger.pages.list, 'function');
+    blogger = remoteBlogger;
+    assert.strictEqual(typeof blogger.pages.list, 'function');
   });
 
   it('should be able to gen top level methods', () => {
